@@ -18,7 +18,10 @@ public class Matcher {
 			if (keyNumbers[keyPointer] == nameNumbers[namePointer]) {
 				keyPointer++;
 				namePointer++;
-			} else {
+			} else if(key.charAt(keyPointer) == name.charAt(namePointer)) {
+                keyPointer++;
+                namePointer++;
+            } else {
 				namePointer++;
 			}
 		}
