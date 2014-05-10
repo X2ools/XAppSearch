@@ -1,6 +1,8 @@
 package org.x2ools.t9apps;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -92,6 +94,7 @@ public class AppsGridView extends GridView {
 			}
 		}
 		mApplications = allapplications;
+		Collections.sort(mApplications, comparator);
 		mFilteredApplications = mApplications;		
 		mAppsAdapter = new AppsAdapter();
 		setAdapter(mAppsAdapter);
@@ -99,6 +102,23 @@ public class AppsGridView extends GridView {
 
 		return allapplications;
 	}
+	
+    private Comparator<ApplicationInfo> comparator = new Comparator<ApplicationInfo>() {
+
+        @Override
+        public int compare(ApplicationInfo lhs, ApplicationInfo rhs) {
+            CharSequence llabel = lhs.loadLabel(mPackageManager);
+            CharSequence rlabel = rhs.loadLabel(mPackageManager);
+            
+            if(llabel.length() > rlabel.length()) {
+                return 1;
+            } else if(llabel.length() < rlabel.length()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 
 	public void filter(String filter) {
 		mAppsAdapter.getFilter().filter(filter);
