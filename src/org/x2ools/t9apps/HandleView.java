@@ -79,9 +79,9 @@ public class HandleView extends View {
 			if (DEBUG) {
 				Log.d(TAG, "moved : mEndX : " + mEndX + " endX : " + endX + " mTouchX : " + mTouchX);
 			}
-			if (Math.abs(endX - mEndX) > 5) {
+			//if (Math.abs(endX - mEndX) > 5) {
 				mCallBack.onMoved((int)mTouchX);
-			}
+			//}
 			mEndX = endX;
 			break;
 		case MotionEvent.ACTION_UP:
