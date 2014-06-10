@@ -1,8 +1,6 @@
 package org.x2ools.t9apps;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 
 public class ConfigActivity extends Activity {
@@ -11,11 +9,7 @@ public class ConfigActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Fragment fragment = new ConfigFragment();
-		getFragmentManager().beginTransaction().add(fragment, "").commit();
-		Intent viewService = new Intent(this, ViewManagerService.class);
-		viewService.putExtra(ViewManagerService.EXTRA_HIDE_VIEW, false);
-		startService(viewService);
+		getFragmentManager().beginTransaction().replace(android.R.id.content, new ConfigFragment()).commit();  
 	}
 
 }

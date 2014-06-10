@@ -14,13 +14,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <PreferenceCategory
-        android:key="category_wechat"
-        android:title="ha" >
-    </PreferenceCategory>
-    
+    <SwitchPreference
+        android:key="float_window"
+        android:title="@string/float_window"
+        android:summary="@string/float_window_summary" />
+    <SwitchPreference
+        android:key="notification"
+        android:title="@string/notification"
+        android:summary="@string/notification_summary"  />
+
 </PreferenceScreen>

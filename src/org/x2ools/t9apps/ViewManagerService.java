@@ -33,6 +33,7 @@ public class ViewManagerService extends Service implements HandleView.CallBack {
     private View mMainView;
     private ViewGroup mMainViewContainer;
     private WindowManager mWindowManager;
+    private NotificationManager nm;
     private LayoutParams mLayoutParams;
     private boolean mShowing = false;
     private FrameLayout.LayoutParams mMainViewLayoutParams;
@@ -43,7 +44,10 @@ public class ViewManagerService extends Service implements HandleView.CallBack {
     private static final boolean NO_ANIMATION = true;
     private int SCREEN_WIDTH;
     private HandleView mHandleView;
-    public static final String EXTRA_HIDE_VIEW = "HIDE_VIEW";
+    public static final String CONFIG_CHANGED = "CONFIG_CHANGED";
+    public static final String SHOW_FLOAT_WINDOW = "SHOW_FLOAT_WINDOW";
+    public static final String SHOW_NOTIFICATION = "SHOW_NOTIFICATION";
+    public static final String SHOW_MAIN_VIEW = "SHOW_MAIN_VIEW";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -57,6 +61,7 @@ public class ViewManagerService extends Service implements HandleView.CallBack {
     public void onCreate() {
         super.onCreate();
         mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         registerReceiver(mReceiver, new IntentFilter(ACTION_HIDE_VIEW));
         SCREEN_WIDTH = generateDisplayWidth();
     }
@@ -96,25 +101,21 @@ public class ViewManagerService extends Service implements HandleView.CallBack {
                 return false;
             }
         });
-        sendNotification();
     }
 
     public static final int NOTIFICATION_ID = 100088;
 
     public void sendNotification() {
         Intent viewService = new Intent(this, ViewManagerService.class);
-        viewService.putExtra(ViewManagerService.EXTRA_HIDE_VIEW, false);
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         PendingIntent intent = PendingIntent.getService(this, 0,
                 viewService, 0);
         Notification notification = new Notification.Builder(this)
+                .setOngoing(true)
                 .setAutoCancel(false)
-                .setOngoing(false)
                 .setContentTitle(getResources().getString(R.string.notification_title))
                 .setContentText(getResources().getString(R.string.notification_text))
                 .setContentIntent(intent)
                 .setSmallIcon(R.drawable.ic_launcher)
-                .addAction(0, "nihao", intent)
                 .build();
         nm.notify(NOTIFICATION_ID, notification);
         Log.d(TAG, "notify " + NOTIFICATION_ID);
@@ -122,13 +123,30 @@ public class ViewManagerService extends Service implements HandleView.CallBack {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        boolean hide = intent.getBooleanExtra(EXTRA_HIDE_VIEW, true);
-        addView(hide);
+        addView(true);
+        if (intent != null) {
+            boolean configChanged = intent.getBooleanExtra(CONFIG_CHANGED, false);
+            boolean showFloat = intent.getBooleanExtra(SHOW_FLOAT_WINDOW, false);
+            boolean showNoti = intent.getBooleanExtra(SHOW_NOTIFICATION, false);
+            if (configChanged) {
+                if (showFloat) {
+                    mHandleView.setVisibility(View.VISIBLE);
+                } else {
+                    mHandleView.setVisibility(View.GONE);
+                }
+                if (showNoti) {
+                    sendNotification();
+                } else {
+                    nm.cancelAll();
+                }
+            } else {
+                showMainView(false);
+            }
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
     public void removeView() {
-        Log.d(TAG, "removeView " + mT9AppsView + mT9AppsView.getWindowToken());
         if (mT9AppsView != null && mT9AppsView.getWindowToken() != null) {
             mWindowManager.removeView(mT9AppsView);
         }
