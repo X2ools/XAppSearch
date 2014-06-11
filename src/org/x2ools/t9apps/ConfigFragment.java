@@ -20,9 +20,9 @@ public class ConfigFragment extends PreferenceFragment implements OnSharedPrefer
 
         floatPreference = (SwitchPreference) findPreference("float_window");
         notiPreference = (SwitchPreference) findPreference("notification");
-        
+
         updateService();
-        
+
     }
 
     @Override
@@ -38,10 +38,11 @@ public class ConfigFragment extends PreferenceFragment implements OnSharedPrefer
 
     @Override
     public void onPause() {
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(
+                this);
         super.onPause();
     }
-    
+
     private void updateService() {
         Intent viewService = new Intent(getActivity(), ViewManagerService.class);
         viewService.putExtra(ViewManagerService.CONFIG_CHANGED, true);
