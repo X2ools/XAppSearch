@@ -3,7 +3,7 @@
     android:id="@+id/t9AppsView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true" >
 
     <FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
-	    android:background="@color/translucent" >
+        android:background="@color/translucent" >
 
         <RelativeLayout
             android:id="@+id/mainView"
@@ -29,8 +29,8 @@
                 android:id="@+id/appsList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/numFilter"
                 android:layout_above="@+id/dialpad"
+                android:layout_below="@id/numFilter"
                 android:numColumns="3" >
             </org.x2ools.xappsearchlib.AppsGridView>
 
@@ -40,70 +40,76 @@
                 android:id="@+id/dialpad"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
+                android:layout_alignParentBottom="true" >
 
-                <TableRow
-                    android:id="@+id/button123"
-                    android:layout_height="0px"
-                    android:layout_weight="1" >
+                <TableLayout
+                    android:id="@+id/buttonNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
 
-                    <ImageButton
-                        android:id="@+id/button1"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_1" />
+                    <TableRow
+                        android:id="@+id/button123"
+                        android:layout_height="0px"
+                        android:layout_weight="1" >
 
-                    <ImageButton
-                        android:id="@+id/button2"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_2" />
+                        <ImageButton
+                            android:id="@+id/button1"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_1" />
 
-                    <ImageButton
-                        android:id="@+id/button3"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_3" />
-                </TableRow>
+                        <ImageButton
+                            android:id="@+id/button2"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_2" />
 
-                <TableRow
-                    android:id="@+id/button456"
-                    android:layout_height="0px"
-                    android:layout_weight="1" >
+                        <ImageButton
+                            android:id="@+id/button3"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_3" />
+                    </TableRow>
 
-                    <ImageButton
-                        android:id="@+id/button4"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_4" />
+                    <TableRow
+                        android:id="@+id/button456"
+                        android:layout_height="0px"
+                        android:layout_weight="1" >
 
-                    <ImageButton
-                        android:id="@+id/button5"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_5" />
+                        <ImageButton
+                            android:id="@+id/button4"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_4" />
 
-                    <ImageButton
-                        android:id="@+id/button6"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_6" />
-                </TableRow>
+                        <ImageButton
+                            android:id="@+id/button5"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_5" />
 
-                <TableRow
-                    android:id="@+id/button789"
-                    android:layout_height="0px"
-                    android:layout_weight="1" >
+                        <ImageButton
+                            android:id="@+id/button6"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_6" />
+                    </TableRow>
 
-                    <ImageButton
-                        android:id="@+id/button7"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_7" />
+                    <TableRow
+                        android:id="@+id/button789"
+                        android:layout_height="0px"
+                        android:layout_weight="1" >
 
-                    <ImageButton
-                        android:id="@+id/button8"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_8" />
+                        <ImageButton
+                            android:id="@+id/button7"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_7" />
 
-                    <ImageButton
-                        android:id="@+id/button9"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_9" />
-                </TableRow>
+                        <ImageButton
+                            android:id="@+id/button8"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_8" />
+
+                        <ImageButton
+                            android:id="@+id/button9"
+                            style="@style/DialtactsDialpadButtonStyle"
+                            android:src="@drawable/dial_num_9" />
+                    </TableRow>
+                </TableLayout>
 
                 <TableRow
                     android:id="@+id/buttonBottom"
@@ -128,10 +134,12 @@
             </TableLayout>
         </RelativeLayout>
     </FrameLayout>
+
     <org.x2ools.t9apps.HandleView
         android:id="@+id/handler"
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:layout_alignLeft="@id/mainViewContainer" />
-<!-- for test    android:background="#ff0000"/>  -->
+    <!-- for test    android:background="#ff0000"/> -->
+
 </org.x2ools.t9apps.T9AppsView>
