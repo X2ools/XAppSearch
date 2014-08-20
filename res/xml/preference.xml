@@ -26,5 +26,10 @@
         android:key="notification"
         android:title="@string/notification"
         android:summary="@string/notification_summary"  />
+    
+    <Preference 
+        android:key="shortcut"
+        android:title="@string/shortcut"
+        android:summary="@string/shortcut_summary"/>
 
 </PreferenceScreen>

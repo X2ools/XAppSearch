@@ -27,6 +27,8 @@ import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import org.x2ools.xappsearchlib.T9AppsView;
+
 public class ViewManagerService extends Service implements HandleView.CallBack {
     private static final String TAG = "ViewManagerService";
     private T9AppsView mT9AppsView;

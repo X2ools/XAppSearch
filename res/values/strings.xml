@@ -9,4 +9,7 @@
     <string name="float_window_summary">从右侧向左滑动调出应用搜索</string>
     <string name="notification">通知栏</string>
     <string name="notification_summary">点击通知调出应用搜索</string>
+    <string name="shortcut_summary">点击创建桌面快捷方式</string>
+    <string name="shortcut">快捷方式</string>
+    <string name="shortcut_installed">已创建桌面快捷方式</string>
 </resources>
