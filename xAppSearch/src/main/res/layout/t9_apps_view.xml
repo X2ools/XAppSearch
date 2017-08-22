@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.x2ools.xappsearchlib.T9AppsView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/t9AppsView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/translucent"
+    android:fitsSystemWindows="true" />
