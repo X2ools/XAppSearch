@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.x2ools.xappsearchlib.model.AppItem;
 import org.x2ools.xappsearchlib.model.ContactItem;
@@ -39,7 +40,8 @@ public class T9Search {
     private static final String TAG = "T9Search";
 
 
-    private T9Search() {}
+    private T9Search() {
+    }
 
     private static class Holder {
         @SuppressLint("StaticFieldLeak")
@@ -60,6 +62,7 @@ public class T9Search {
     private ArrayList<SearchItem> mPrevResult = new ArrayList<>();
     private BehaviorSubject<List<SearchItem>> mAllItemsSubject = BehaviorSubject.createDefault(Collections.<SearchItem>emptyList());
     private boolean mContactEnable = false;
+    private boolean mCallPhoneEnable = false;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -160,6 +163,14 @@ public class T9Search {
         mContactEnable = enable;
     }
 
+    public void setCallPhoneEnable(boolean callPhoneEnable) {
+        this.mCallPhoneEnable = callPhoneEnable;
+    }
+
+    public boolean isCallPhoneEnable() {
+        return mCallPhoneEnable;
+    }
+
     private void reloadData() {
         Observable.fromCallable(mGetAllCallable)
                 .subscribeOn(Schedulers.io())
@@ -204,6 +215,10 @@ public class T9Search {
                 int pos = 0;
                 boolean newQuery = mPrevInput == null || number.length() <= mPrevInput.length();
                 for (SearchItem item : (newQuery ? mAllItemsSubject.getValue() : mPrevResult)) {
+                    if (item == null) {
+                        Log.wtf(TAG, "item null ???");
+                        continue;
+                    }
                     pos = item.getPinyin().indexOf(number);
                     if (pos != -1) {
                         mSearchResult.add(item);
@@ -217,8 +232,8 @@ public class T9Search {
                     }
 
                     if (item instanceof ContactItem) {
-                        if (!TextUtils.isEmpty(((ContactItem)item).getPhoneNumber())) {
-                            pos = ((ContactItem)item).getPhoneNumber().indexOf(number);
+                        if (!TextUtils.isEmpty(((ContactItem) item).getPhoneNumber())) {
+                            pos = ((ContactItem) item).getPhoneNumber().indexOf(number);
                             if (pos != -1) {
                                 mSearchResult.add(item);
                                 continue;
@@ -235,7 +250,7 @@ public class T9Search {
                 return mSearchResult;
             }
         }).subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public void destroy() {

@@ -80,9 +80,15 @@ public class T9AppsView extends FrameLayout implements T9ViewDelegate {
 
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent("android.intent.action.CALL", Uri.parse("tel:"
-                        + mFilterView.getText().toString()));
-                getContext().startActivity(intent);
+                if (T9Search.getInstance().isCallPhoneEnable()) {
+                    try {
+                        Intent intent = new Intent("android.intent.action.CALL", Uri.parse("tel:"
+                                + mFilterView.getText().toString()));
+                        getContext().startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 

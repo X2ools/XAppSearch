@@ -23,10 +23,14 @@ public class T9AppsActivity extends BaseActivity {
         checkPermission(new PermissionListener() {
             @Override
             public void onResult(String permission, boolean enabled) {
-                T9Search.getInstance().setContactEnable(enabled);
+                if (Manifest.permission.READ_CONTACTS.equals(permission)) {
+                    T9Search.getInstance().setContactEnable(enabled);
+                } else if (Manifest.permission.CALL_PHONE.equals(permission)) {
+                    T9Search.getInstance().setCallPhoneEnable(enabled);
+                }
                 T9Search.getInstance().init(T9AppsActivity.this);
             }
-        }, Manifest.permission.READ_CONTACTS);
+        }, Manifest.permission.READ_CONTACTS, Manifest.permission.CALL_PHONE);
     }
 
     private void translateSystemUI() {
