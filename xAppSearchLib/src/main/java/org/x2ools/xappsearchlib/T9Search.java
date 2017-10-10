@@ -2,6 +2,7 @@
 package org.x2ools.xappsearchlib;
 
 import android.annotation.SuppressLint;
+import android.arch.persistence.room.Room;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -14,6 +15,8 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.x2ools.xappsearchlib.db.AppDatabase;
+import org.x2ools.xappsearchlib.db.AppUsage;
 import org.x2ools.xappsearchlib.model.AppItem;
 import org.x2ools.xappsearchlib.model.ContactItem;
 import org.x2ools.xappsearchlib.model.SearchItem;
@@ -27,9 +30,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -38,6 +43,8 @@ public class T9Search {
     private static final boolean DEBUG = false;
 
     private static final String TAG = "T9Search";
+    private Disposable dataDisposable;
+    private AppDatabase mDb;
 
 
     private T9Search() {
@@ -57,9 +64,7 @@ public class T9Search {
     private ContentResolver mResolver;
     private HashMap<String, ContactItem> mAddedContact = new HashMap<>();
     private IconCache mIconCache;
-    private String mPrevInput;
     private ArrayList<SearchItem> mSearchResult = new ArrayList<>();
-    private ArrayList<SearchItem> mPrevResult = new ArrayList<>();
     private BehaviorSubject<List<SearchItem>> mAllItemsSubject = BehaviorSubject.createDefault(Collections.<SearchItem>emptyList());
     private boolean mContactEnable = false;
     private boolean mCallPhoneEnable = false;
@@ -72,79 +77,80 @@ public class T9Search {
         }
     };
 
-    private Callable<List<SearchItem>> mGetAllCallable = new Callable<List<SearchItem>>() {
-        @Override
-        public List<SearchItem> call() throws Exception {
-            List<SearchItem> all = new ArrayList<>();
+    private Callable<List<SearchItem>> mGetAllCallable = () -> {
+        List<SearchItem> all = new ArrayList<>();
 
-            List<ApplicationInfo> mApplications = new ArrayList<>();
-            mApplications.addAll(mPackageManager.getInstalledApplications(0));
-            for (ApplicationInfo appinfo : mApplications) {
-                if (mPackageManager.getLaunchIntentForPackage(appinfo.packageName) == null)
-                    continue;
-                AppItem appitem = new AppItem();
-                appitem.setName(appinfo.loadLabel(mPackageManager).toString());
-                appitem.setPinyin(ToPinYinUtils.getPinyinNum(appitem.getName(), false));
-                appitem.setFullpinyin(ToPinYinUtils.getPinyinNum(appitem.getName(), true));
-                appitem.setPackageName(appinfo.packageName);
-                mIconCache.getIcon(appitem, appinfo);
-                all.add(appitem);
-            }
-
-            if (mContactEnable) {
-                Cursor cursor = null;
-                try {
-                    cursor = mResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            null,
-                            null, null, null);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        int id = cursor.getInt(cursor
-                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-                        String name = cursor.getString(cursor
-                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                        String phoneNumber = cursor.getString(cursor
-                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        String photoUri = cursor.getString(cursor
-                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
-
-                        ContactItem item = new ContactItem();
-                        item.setId(id);
-                        item.setName(name);
-                        item.setPinyin(ToPinYinUtils.getPinyinNum(item.getName(), false));
-                        item.setFullpinyin(ToPinYinUtils.getPinyinNum(item.getName(), true));
-                        item.setPhoneNumber(phoneNumber);
-                        mIconCache.getIcon(item, mResolver, photoUri);
-
-                        if (mAddedContact.containsKey(name)) {
-                            ContactItem added = mAddedContact.get(name);
-                            if (added.getPhoneNumber().equals(phoneNumber)) {
-                                continue;
-                            } else {
-                                item.setName(name + "(" + phoneNumber + ")");
-                            }
-                        }
-
-                        all.add(item);
-                        mAddedContact.put(name, item);
-                    }
-                    cursor.close();
-                }
-            }
-
-            Collections.sort(all, new NameComparator());
-            return all;
+        List<ApplicationInfo> mApplications = new ArrayList<>();
+        mApplications.addAll(mPackageManager.getInstalledApplications(0));
+        for (ApplicationInfo appinfo : mApplications) {
+            if (mPackageManager.getLaunchIntentForPackage(appinfo.packageName) == null)
+                continue;
+            AppItem appitem = new AppItem();
+            appitem.setName(appinfo.loadLabel(mPackageManager).toString());
+            appitem.setPinyin(ToPinYinUtils.getPinYin(appitem.getName(), false));
+            appitem.setFullpinyin(ToPinYinUtils.getPinYin(appitem.getName(), true));
+            appitem.setPackageName(appinfo.packageName);
+            mIconCache.getIcon(appitem, appinfo);
+            all.add(appitem);
         }
+
+        if (mContactEnable) {
+            Cursor cursor = null;
+            try {
+                cursor = mResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        null,
+                        null, null, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(cursor
+                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+                    String name = cursor.getString(cursor
+                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    String phoneNumber = cursor.getString(cursor
+                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    String photoUri = cursor.getString(cursor
+                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
+
+                    ContactItem item = new ContactItem();
+                    item.setId(id);
+                    item.setName(name);
+                    item.setPinyin(ToPinYinUtils.getPinYin(item.getName(), false));
+                    item.setFullpinyin(ToPinYinUtils.getPinYin(item.getName(), true));
+                    item.setPhoneNumber(phoneNumber);
+                    mIconCache.getIcon(item, mResolver, photoUri);
+
+                    if (mAddedContact.containsKey(name)) {
+                        ContactItem added = mAddedContact.get(name);
+                        if (added.getPhoneNumber().equals(phoneNumber)) {
+                            continue;
+                        } else {
+                            item.setName(name + "(" + phoneNumber + ")");
+                        }
+                    }
+
+                    all.add(item);
+                    mAddedContact.put(name, item);
+                }
+                cursor.close();
+            }
+        }
+
+        Collections.sort(all, new NameComparator());
+        return all;
     };
 
-    public void init(Context context) {
+    public void init(Context context, boolean contactEnable, boolean callEnable) {
         mContext = context.getApplicationContext();
         mPackageManager = context.getPackageManager();
         mResolver = context.getContentResolver();
+        mDb = Room.databaseBuilder(mContext, AppDatabase.class, "app_db")
+                .build();
         mIconCache = new IconCache(context);
+        mContactEnable = contactEnable;
+        mCallPhoneEnable = callEnable;
         reloadData();
 
         try {
@@ -153,7 +159,7 @@ public class T9Search {
             filter.addAction("android.intent.action.PACKAGE_CHANGED");
             filter.addAction("android.intent.action.PACKAGE_REMOVED");
             filter.addDataScheme("package");
-            context.registerReceiver(mReceiver, filter);
+            mContext.registerReceiver(mReceiver, filter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -161,10 +167,12 @@ public class T9Search {
 
     public void setContactEnable(boolean enable) {
         mContactEnable = enable;
+        reloadData();
     }
 
     public void setCallPhoneEnable(boolean callPhoneEnable) {
         this.mCallPhoneEnable = callPhoneEnable;
+        reloadData();
     }
 
     public boolean isCallPhoneEnable() {
@@ -172,15 +180,11 @@ public class T9Search {
     }
 
     private void reloadData() {
-        Observable.fromCallable(mGetAllCallable)
+        if (dataDisposable != null) dataDisposable.dispose();
+        dataDisposable = Observable.fromCallable(mGetAllCallable)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<SearchItem>>() {
-                    @Override
-                    public void accept(List<SearchItem> searchItems) throws Exception {
-                        mAllItemsSubject.onNext(searchItems);
-                    }
-                });
+                .subscribe(searchItems -> mAllItemsSubject.onNext(searchItems));
     }
 
     public List<SearchItem> getAll() {
@@ -207,48 +211,109 @@ public class T9Search {
 
     }
 
-    public Observable<List<SearchItem>> search(final String number) {
-        return Observable.fromCallable(new Callable<List<SearchItem>>() {
-            @Override
-            public List<SearchItem> call() throws Exception {
-                mSearchResult.clear();
-                int pos = 0;
-                boolean newQuery = mPrevInput == null || number.length() <= mPrevInput.length();
-                for (SearchItem item : (newQuery ? mAllItemsSubject.getValue() : mPrevResult)) {
-                    if (item == null) {
-                        Log.wtf(TAG, "item null ???");
-                        continue;
-                    }
-                    pos = item.getPinyin().indexOf(number);
+    public Maybe<List<SearchItem>> getRecent() {
+        return mDb.appUsageDao().getRecent9Apps().map(appUsages -> {
+            List<SearchItem> items = new ArrayList<>();
+            for (AppUsage appUsage : appUsages) {
+                ApplicationInfo info = null;
+                try {
+                    info = mPackageManager.getApplicationInfo(appUsage.packageName, 0);
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+                if (info != null) {
+                    AppItem item = new AppItem();
+                    item.setName(info.loadLabel(mPackageManager).toString());
+                    item.setPackageName(appUsage.packageName);
+                    item.setIcon(info.loadIcon(mPackageManager));
+                    items.add(item);
+                }
+            }
+            return items;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public void recordUsage(String packageName) {
+        mDb.appUsageDao().get(packageName)
+                .subscribeOn(Schedulers.io())
+                .subscribe(appUsage -> {
+                    appUsage.count += 1;
+                    mDb.appUsageDao().add(appUsage);
+                }, throwable -> {}, () -> {
+                    AppUsage newAppUsage = new AppUsage(packageName);
+                    newAppUsage.count = 1;
+                    mDb.appUsageDao().add(newAppUsage);
+                });
+    }
+
+    public Observable<List<SearchItem>> search(final String text) {
+        return Observable.fromCallable((Callable<List<SearchItem>>) () -> {
+            mSearchResult.clear();
+            String lower = text.toLowerCase();
+            int pos = 0;
+            if (mAllItemsSubject.getValue() == null) return mSearchResult;
+            for (SearchItem item : mAllItemsSubject.getValue()) {
+                if (item == null) {
+                    Log.wtf(TAG, "item null ???");
+                    continue;
+                }
+
+                pos = item.getName().indexOf(lower);
+                if (pos != -1) {
+                    mSearchResult.add(item);
+                    continue;
+                }
+
+                pos = item.getPinyin().indexOf(lower);
+                if (pos != -1) {
+                    mSearchResult.add(item);
+                    continue;
+                }
+
+                pos = item.getFullpinyin().indexOf(lower);
+                if (pos != -1) {
+                    mSearchResult.add(item);
+                    continue;
+                }
+
+                pos = ToPinYinUtils.getPinyinNum(item.getPinyin()).indexOf(lower);
+                if (pos != -1) {
+                    mSearchResult.add(item);
+                    continue;
+                }
+
+                pos = ToPinYinUtils.getPinyinNum(item.getFullpinyin()).indexOf(lower);
+                if (pos != -1) {
+                    mSearchResult.add(item);
+                    continue;
+                }
+
+                if (item instanceof AppItem) {
+                    pos = ((AppItem) item).getPackageName().indexOf(lower);
                     if (pos != -1) {
                         mSearchResult.add(item);
                         continue;
                     }
 
-                    pos = item.getFullpinyin().indexOf(number);
+                    pos = ToPinYinUtils.getPinyinNum(((AppItem) item).getPackageName()).indexOf(lower);
                     if (pos != -1) {
                         mSearchResult.add(item);
                         continue;
                     }
+                }
 
-                    if (item instanceof ContactItem) {
-                        if (!TextUtils.isEmpty(((ContactItem) item).getPhoneNumber())) {
-                            pos = ((ContactItem) item).getPhoneNumber().indexOf(number);
-                            if (pos != -1) {
-                                mSearchResult.add(item);
-                                continue;
-                            }
+                if (item instanceof ContactItem) {
+                    if (!TextUtils.isEmpty(((ContactItem) item).getPhoneNumber())) {
+                        pos = ((ContactItem) item).getPhoneNumber().indexOf(lower);
+                        if (pos != -1) {
+                            mSearchResult.add(item);
+                            continue;
                         }
                     }
                 }
-                mPrevResult.clear();
-                mPrevInput = number;
-                if (mSearchResult.size() > 0) {
-                    mPrevResult.addAll(mSearchResult);
-                    return mSearchResult;
-                }
-                return mSearchResult;
             }
+            return mSearchResult;
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

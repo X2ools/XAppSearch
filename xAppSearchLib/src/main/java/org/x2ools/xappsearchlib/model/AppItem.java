@@ -9,7 +9,6 @@ import android.content.Intent;
 public class AppItem extends SearchItem {
 
     private String packageName;
-    private Intent baseIntent;
 
     public String getPackageName() {
         return packageName;
@@ -17,15 +16,6 @@ public class AppItem extends SearchItem {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
-    }
-
-    public Intent getBaseIntent() {
-        return baseIntent;
-    }
-
-    public void setBaseIntent(Intent baseIntent) {
-        this.baseIntent = baseIntent;
-        baseIntent.toUri(0);
     }
 
     @Override

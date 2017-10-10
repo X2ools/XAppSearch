@@ -3,8 +3,6 @@ package org.x2ools.t9apps;
 import android.app.Application;
 import android.util.Log;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 
 /**
@@ -17,11 +15,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
-            @Override
-            public void accept(@NonNull Throwable throwable) throws Exception {
-                Log.e("App", "RxJavaError", throwable);
-            }
-        });
+        RxJavaPlugins.setErrorHandler(throwable -> Log.e("App", "RxJavaError", throwable));
     }
 }

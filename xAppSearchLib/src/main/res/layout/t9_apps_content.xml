@@ -11,12 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <TextView
+        <EditText
             android:id="@+id/numFilter"
+            android:inputType="none"
+            android:focusable="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:textSize="16pt" />
+            android:textSize="16sp" />
 
         <GridView
             android:id="@+id/appsList"

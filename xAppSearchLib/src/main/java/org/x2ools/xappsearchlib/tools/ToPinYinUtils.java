@@ -16,35 +16,26 @@ import java.util.List;
 
 public class ToPinYinUtils {
 
-    public static List<String> getPinyinList(List<String> list) {
-        List<String> pinyinList = new ArrayList<String>();
-        for (Iterator<String> i = list.iterator(); i.hasNext();) {
-            String str = (String) i.next();
-            try {
-                String pinyin = getPinYin(str);
-                pinyinList.add(pinyin);
-            } catch (BadHanyuPinyinOutputFormatCombination e) {
-                e.printStackTrace();
-            }
-        }
-        return pinyinList;
-    }
+    public static String getPinYin(String zhongwen, boolean full) throws BadHanyuPinyinOutputFormatCombination {
 
-    public static String getPinYin(String zhongwen) throws BadHanyuPinyinOutputFormatCombination {
-
-        String zhongWenPinYin = "";
+        StringBuilder zhongWenPinYin = new StringBuilder();
         char[] chars = zhongwen.toCharArray();
 
-        for (int i = 0; i < chars.length; i++) {
-            String[] pinYin = PinyinHelper.toHanyuPinyinStringArray(chars[i],
+        for (char aChar : chars) {
+            String[] pinYin = PinyinHelper.toHanyuPinyinStringArray(aChar,
                     getDefaultOutputFormat());
             if (pinYin != null) {
-                zhongWenPinYin += pinYin[0];
+                String word = pinYin[0];
+                if (full) {
+                    zhongWenPinYin.append(word);
+                } else {
+                    zhongWenPinYin.append(word.charAt(0));
+                }
             } else {
-                zhongWenPinYin += chars[i];
+                zhongWenPinYin.append(aChar);
             }
         }
-        return zhongWenPinYin;
+        return zhongWenPinYin.toString().toLowerCase();
     }
 
     private static HanyuPinyinOutputFormat getDefaultOutputFormat() {
@@ -56,37 +47,20 @@ public class ToPinYinUtils {
     }
 
     @SuppressLint("DefaultLocale")
-    public static String getPinyinNum(String name, boolean full) {
-        try {
-            if (name != null && name.length() != 0) {
-                int len = name.length();
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < len; i++) {
-                    String tmp = name.substring(i);
-                    char c = tmp.charAt(0);
-                    if (c <= '9' && c >= '0') {
-                        sb.append(c);
-                    } else {
-                        if (full) {
-                            String pinyin = ToPinYinUtils.getPinYin(tmp).toLowerCase();
-                            for (int j = 0; j < pinyin.length(); j++) {
-                                sb.append(getOneNumFromAlpha(pinyin.charAt(j)));
-                            }
-                        } else {
-                            sb.append(getOneNumFromAlpha(ToPinYinUtils.getPinYin(tmp).toLowerCase()
-                                    .charAt(0)));
-                        }
-                    }
-                }
-                return sb.toString();
+    public static String getPinyinNum(String pinyin) {
+        if (pinyin != null && pinyin.length() != 0) {
+            int len = pinyin.length();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < len; i++) {
+                sb.append(getOneNumFromAlpha(pinyin.charAt(i)));
             }
-        } catch (BadHanyuPinyinOutputFormatCombination e) {
-            e.printStackTrace();
+            return sb.toString();
         }
         return null;
     }
 
     private static String getOneNumFromAlpha(char firstAlpha) {
+        if (firstAlpha <= '9' && firstAlpha >= '0') return String.valueOf(firstAlpha);
         switch (firstAlpha) {
             case 'a':
             case 'b':
