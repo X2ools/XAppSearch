@@ -13,7 +13,7 @@ import android.support.annotation.NonNull;
 public class AppUsage {
     @PrimaryKey
     @NonNull
-    public String packageName;
+    public String packageName = "";
     public int count;
 
     @Ignore
