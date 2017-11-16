@@ -62,4 +62,8 @@ public class T9AppsActivity extends BaseActivity {
         T9Search.getInstance().destroy();
     }
 
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(false);
+    }
 }

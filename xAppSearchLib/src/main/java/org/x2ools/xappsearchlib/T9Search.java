@@ -34,7 +34,6 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -212,7 +211,7 @@ public class T9Search {
     }
 
     public Maybe<List<SearchItem>> getRecent() {
-        return mDb.appUsageDao().getRecent9Apps().map(appUsages -> {
+        return mDb.appUsageDao().getRecentApps().map(appUsages -> {
             List<SearchItem> items = new ArrayList<>();
             for (AppUsage appUsage : appUsages) {
                 ApplicationInfo info = null;
