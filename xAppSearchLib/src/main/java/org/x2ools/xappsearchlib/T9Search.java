@@ -15,8 +15,10 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.reactivestreams.Publisher;
 import org.x2ools.xappsearchlib.db.AppDatabase;
 import org.x2ools.xappsearchlib.db.AppUsage;
+import org.x2ools.xappsearchlib.db.InstalledApp;
 import org.x2ools.xappsearchlib.model.AppItem;
 import org.x2ools.xappsearchlib.model.ContactItem;
 import org.x2ools.xappsearchlib.model.SearchItem;
@@ -76,23 +78,8 @@ public class T9Search {
         }
     };
 
-    private Callable<List<SearchItem>> mGetAllCallable = () -> {
+    private Publisher<List<SearchItem>> mGetAllCallable = (subscriber) -> {
         List<SearchItem> all = new ArrayList<>();
-
-        List<ApplicationInfo> mApplications = new ArrayList<>();
-        mApplications.addAll(mPackageManager.getInstalledApplications(0));
-        for (ApplicationInfo appinfo : mApplications) {
-            if (mPackageManager.getLaunchIntentForPackage(appinfo.packageName) == null)
-                continue;
-            AppItem appitem = new AppItem();
-            appitem.setName(appinfo.loadLabel(mPackageManager).toString());
-            appitem.setPinyin(ToPinYinUtils.getPinYin(appitem.getName(), false));
-            appitem.setFullpinyin(ToPinYinUtils.getPinYin(appitem.getName(), true));
-            appitem.setPackageName(appinfo.packageName);
-            mIconCache.getIcon(appitem, appinfo);
-            all.add(appitem);
-        }
-
         if (mContactEnable) {
             Cursor cursor = null;
             try {
@@ -137,8 +124,45 @@ public class T9Search {
             }
         }
 
+        List<InstalledApp> installedApps = mDb.installedAppDao().getAll().blockingGet();
+        if (installedApps != null) {
+            for (InstalledApp app : installedApps) {
+                AppItem appitem = new AppItem();
+                appitem.setName(app.name);
+                appitem.setPinyin(app.pinyin);
+                appitem.setFullpinyin(app.fullpinyin);
+                appitem.setPackageName(app.packageName);
+                mIconCache.getIcon(appitem, app.packageName);
+                all.add(appitem);
+            }
+
+            Collections.sort(all, new NameComparator());
+            subscriber.onNext(new ArrayList<>(all));
+        }
+
+        List<ApplicationInfo> applications = new ArrayList<>();
+        applications.addAll(mPackageManager.getInstalledApplications(0));
+        for (ApplicationInfo appinfo : applications) {
+            if (mPackageManager.getLaunchIntentForPackage(appinfo.packageName) == null)
+                continue;
+            String name = appinfo.loadLabel(mPackageManager).toString();
+            String pinyin = ToPinYinUtils.getPinYin(name, false);
+            String fullpinyin = ToPinYinUtils.getPinYin(name, true);
+            AppItem appitem = new AppItem();
+            appitem.setName(name);
+            appitem.setPinyin(pinyin);
+            appitem.setFullpinyin(fullpinyin);
+            appitem.setPackageName(appinfo.packageName);
+            mIconCache.getIcon(appitem, appinfo);
+            if (all.contains(appitem)) {
+                all.remove(appitem);
+            }
+            mDb.installedAppDao().add(new InstalledApp(appinfo.packageName, name, pinyin, fullpinyin));
+            all.add(appitem);
+        }
+
         Collections.sort(all, new NameComparator());
-        return all;
+        subscriber.onNext(new ArrayList<>(all));
     };
 
     public void init(Context context, boolean contactEnable, boolean callEnable) {
@@ -180,7 +204,7 @@ public class T9Search {
 
     private void reloadData() {
         if (dataDisposable != null) dataDisposable.dispose();
-        dataDisposable = Observable.fromCallable(mGetAllCallable)
+        dataDisposable = Observable.fromPublisher(mGetAllCallable)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(searchItems -> mAllItemsSubject.onNext(searchItems));

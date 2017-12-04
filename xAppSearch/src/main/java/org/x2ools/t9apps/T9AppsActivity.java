@@ -3,6 +3,8 @@ package org.x2ools.t9apps;
 import android.Manifest;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -64,6 +66,8 @@ public class T9AppsActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        moveTaskToBack(false);
+        if (!hideKeyboard()) {
+            super.onBackPressed();
+        }
     }
 }

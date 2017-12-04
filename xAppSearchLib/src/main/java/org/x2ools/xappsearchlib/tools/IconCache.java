@@ -1,6 +1,7 @@
 
 package org.x2ools.xappsearchlib.tools;
 
+import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -89,6 +90,18 @@ public class IconCache {
                 entry.icon = info.loadIcon(pm);
             }
             item.setIcon(entry.icon);
+        }
+    }
+
+    public void getIcon(AppItem item, String packageName) {
+        ApplicationInfo info = null;
+        try {
+            info = mContext.getPackageManager().getApplicationInfo(packageName, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (info != null) {
+            getIcon(item, info);
         }
     }
 

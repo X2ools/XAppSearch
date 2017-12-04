@@ -18,7 +18,7 @@ public interface AppUsageDao {
     @Query("SELECT * FROM AppUsage")
     Maybe<List<AppUsage>> getAll();
 
-    @Query("SELECT * FROM AppUsage ORDER BY count DESC LIMIT 12")
+    @Query("SELECT * FROM AppUsage ORDER BY count DESC LIMIT 16")
     Maybe<List<AppUsage>> getRecentApps();
 
     @Query("SELECT * FROM AppUsage where packageName = :packageName")

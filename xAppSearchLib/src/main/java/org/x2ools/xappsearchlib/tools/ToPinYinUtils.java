@@ -16,14 +16,20 @@ import java.util.List;
 
 public class ToPinYinUtils {
 
-    public static String getPinYin(String zhongwen, boolean full) throws BadHanyuPinyinOutputFormatCombination {
+    public static String getPinYin(String zhongwen, boolean full) {
 
         StringBuilder zhongWenPinYin = new StringBuilder();
         char[] chars = zhongwen.toCharArray();
 
         for (char aChar : chars) {
-            String[] pinYin = PinyinHelper.toHanyuPinyinStringArray(aChar,
-                    getDefaultOutputFormat());
+            String[] pinYin;
+            try {
+                pinYin = PinyinHelper.toHanyuPinyinStringArray(aChar,
+                        getDefaultOutputFormat());
+            } catch (BadHanyuPinyinOutputFormatCombination badHanyuPinyinOutputFormatCombination) {
+                badHanyuPinyinOutputFormatCombination.printStackTrace();
+                pinYin = null;
+            }
             if (pinYin != null) {
                 String word = pinYin[0];
                 if (full) {
