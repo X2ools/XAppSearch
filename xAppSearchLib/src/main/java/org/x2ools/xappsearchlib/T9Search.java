@@ -15,11 +15,14 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.javia.arity.Symbols;
+import org.javia.arity.SyntaxException;
 import org.reactivestreams.Publisher;
 import org.x2ools.xappsearchlib.db.AppDatabase;
 import org.x2ools.xappsearchlib.db.AppUsage;
 import org.x2ools.xappsearchlib.db.InstalledApp;
 import org.x2ools.xappsearchlib.model.AppItem;
+import org.x2ools.xappsearchlib.model.CalcItem;
 import org.x2ools.xappsearchlib.model.ContactItem;
 import org.x2ools.xappsearchlib.model.SearchItem;
 import org.x2ools.xappsearchlib.tools.IconCache;
@@ -45,6 +48,7 @@ public class T9Search {
 
     private static final String TAG = "T9Search";
     private Disposable dataDisposable;
+    private Symbols symbols = new Symbols();
     private AppDatabase mDb;
 
 
@@ -133,7 +137,16 @@ public class T9Search {
                 appitem.setFullpinyin(app.fullpinyin);
                 appitem.setPackageName(app.packageName);
                 mIconCache.getIcon(appitem, app.packageName);
-                all.add(appitem);
+                ApplicationInfo info;
+                try {
+                    info = mPackageManager.getApplicationInfo(app.packageName, 0);
+                } catch (PackageManager.NameNotFoundException e) {
+                    info = null;
+                    mDb.installedAppDao().remove(app);
+                }
+                if (info != null) {
+                    all.add(appitem);
+                }
             }
 
             Collections.sort(all, new NameComparator());
@@ -234,6 +247,10 @@ public class T9Search {
 
     }
 
+    private double eval(String exp) throws SyntaxException {
+        return symbols.eval(exp);
+    }
+
     public Maybe<List<SearchItem>> getRecent() {
         return mDb.appUsageDao().getRecentApps().map(appUsages -> {
             List<SearchItem> items = new ArrayList<>();
@@ -274,6 +291,11 @@ public class T9Search {
         return Observable.fromCallable((Callable<List<SearchItem>>) () -> {
             mSearchResult.clear();
             String lower = text.toLowerCase();
+            try {
+                double res = eval(lower);
+                mSearchResult.add(new CalcItem(res));
+            } catch (SyntaxException ignored) {
+            }
             int pos = 0;
             if (mAllItemsSubject.getValue() == null) return mSearchResult;
             for (SearchItem item : mAllItemsSubject.getValue()) {

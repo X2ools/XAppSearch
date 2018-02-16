@@ -63,11 +63,4 @@ public class T9AppsActivity extends BaseActivity {
         super.onDestroy();
         T9Search.getInstance().destroy();
     }
-
-    @Override
-    public void onBackPressed() {
-        if (!hideKeyboard()) {
-            super.onBackPressed();
-        }
-    }
 }

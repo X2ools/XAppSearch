@@ -24,4 +24,7 @@ public interface InstalledAppDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void add(InstalledApp app);
+
+    @Delete
+    void remove(InstalledApp app);
 }

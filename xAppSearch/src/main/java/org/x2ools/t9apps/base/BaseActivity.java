@@ -83,13 +83,4 @@ public class BaseActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
     }
-
-    public boolean hideKeyboard() {
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            return imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-        return false;
-    }
 }

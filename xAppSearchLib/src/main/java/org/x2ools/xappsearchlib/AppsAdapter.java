@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import org.x2ools.xappsearchlib.model.CalcItem;
 import org.x2ools.xappsearchlib.model.SearchItem;
 
 import java.util.List;
@@ -54,9 +55,13 @@ public class AppsAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
+        if (item.getIcon() == null) {
+            viewHolder.icon.setVisibility(View.GONE);
+        } else {
+            viewHolder.icon.setVisibility(View.VISIBLE);
+            viewHolder.icon.setImageDrawable(item.getIcon());
+        }
         viewHolder.textTitle.setText(item.getName());
-        viewHolder.icon.setImageDrawable(item.getIcon());
         return convertView;
     }
 }

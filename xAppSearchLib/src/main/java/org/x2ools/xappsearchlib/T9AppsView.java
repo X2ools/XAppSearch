@@ -279,16 +279,6 @@ public class T9AppsView extends FrameLayout implements T9ViewDelegate {
         }
     }
 
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        Log.d(TAG, "dispatchKeyEvent : " + KeyEvent.keyCodeToString(event.getKeyCode()));
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-            hideView();
-            return true;
-        }
-        return super.dispatchKeyEvent(event);
-    }
-
     public void hideView() {
         if (getContext() instanceof Activity) {
             ((Activity) getContext()).finish();
