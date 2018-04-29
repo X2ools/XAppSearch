@@ -1,15 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
 
     defaultConfig {
         applicationId "org.x2ools.t9apps"
         versionName "1.0.3"
         versionCode 3
         minSdkVersion 19
-        targetSdkVersion 26
+        targetSdkVersion 27
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -28,8 +27,8 @@ android {
 
 dependencies {
     implementation project(':xAppSearchLib')
-    implementation 'com.android.support:support-v4:26.1.0'
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.4'
-    implementation 'com.android.support:support-vector-drawable:26.1.0'
+    implementation 'com.android.support:support-vector-drawable:27.1.1'
 }
