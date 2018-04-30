@@ -24,9 +24,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
-            android:launchMode="singleInstance"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Translucent">
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

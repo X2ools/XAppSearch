@@ -2,9 +2,6 @@ package org.x2ools.t9apps;
 
 import android.Manifest;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -31,7 +28,6 @@ public class T9AppsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mWindow = getWindow();
-        translateSystemUI();
         Settings settings = new Settings(this);
         boolean enableContact = settings.isEnableContact();
         boolean enableCall = settings.isEnableCall();
@@ -40,9 +36,6 @@ public class T9AppsActivity extends BaseActivity {
         T9Search.getInstance().init(T9AppsActivity.this, enableContact, enableCall);
 
         T9AppsView view = new T9AppsView(this);
-        view.setFitsSystemWindows(true);
-        view.setBackgroundColor(ContextCompat.getColor(this, R.color.translucent));
-        view.setQwerty(qwerty, false);
         setContentView(view);
 
         if (settings.isEnableContact()) {

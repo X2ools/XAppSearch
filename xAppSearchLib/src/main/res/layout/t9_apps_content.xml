@@ -4,7 +4,7 @@
     android:id="@+id/mainViewContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_alignParentRight="true" >
+    android:background="#FFFFFF" >
 
     <RelativeLayout
         android:id="@+id/mainView"
@@ -13,8 +13,7 @@
 
         <EditText
             android:id="@+id/numFilter"
-            android:inputType="none"
-            android:focusable="false"
+            android:inputType="textEmailAddress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -24,108 +23,8 @@
             android:id="@+id/appsList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/dialpad"
             android:layout_below="@id/numFilter"
-            android:numColumns="3" >
+            android:numColumns="4" >
         </GridView>
-
-        <!-- TODO: add buttons dynamically -->
-
-        <TableLayout
-            android:id="@+id/dialpad"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" >
-
-            <TableLayout
-                android:id="@+id/buttonNumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <TableRow
-                    android:id="@+id/button123"
-                    android:layout_height="0px"
-                    android:layout_weight="1" >
-
-                    <ImageButton
-                        android:id="@+id/button1"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_1" />
-
-                    <ImageButton
-                        android:id="@+id/button2"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_2" />
-
-                    <ImageButton
-                        android:id="@+id/button3"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_3" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/button456"
-                    android:layout_height="0px"
-                    android:layout_weight="1" >
-
-                    <ImageButton
-                        android:id="@+id/button4"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_4" />
-
-                    <ImageButton
-                        android:id="@+id/button5"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_5" />
-
-                    <ImageButton
-                        android:id="@+id/button6"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_6" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/button789"
-                    android:layout_height="0px"
-                    android:layout_weight="1" >
-
-                    <ImageButton
-                        android:id="@+id/button7"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_7" />
-
-                    <ImageButton
-                        android:id="@+id/button8"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_8" />
-
-                    <ImageButton
-                        android:id="@+id/button9"
-                        style="@style/DialtactsDialpadButtonStyle"
-                        android:src="@drawable/dial_num_9" />
-                </TableRow>
-            </TableLayout>
-
-            <TableRow
-                android:id="@+id/buttonBottom"
-                android:layout_height="0px"
-                android:layout_weight="1" >
-
-                <ImageButton
-                    android:id="@+id/buttonStar"
-                    style="@style/DialtactsDialpadButtonStyle"
-                    android:src="@drawable/dial_num_star" />
-
-                <ImageButton
-                    android:id="@+id/button0"
-                    style="@style/DialtactsDialpadButtonStyle"
-                    android:src="@drawable/dial_num_0" />
-
-                <ImageButton
-                    android:id="@+id/buttonDelete"
-                    style="@style/DialtactsDialpadButtonStyle"
-                    android:src="@drawable/dial_num_pound" />
-            </TableRow>
-        </TableLayout>
     </RelativeLayout>
 </FrameLayout>

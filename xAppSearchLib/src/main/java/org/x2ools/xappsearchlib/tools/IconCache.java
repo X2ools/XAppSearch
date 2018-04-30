@@ -1,9 +1,10 @@
 
 package org.x2ools.xappsearchlib.tools;
 
-import android.app.Application;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -78,9 +79,24 @@ public class IconCache {
         }
     }
 
+    public void getIcon(AppItem item, ActivityInfo activityInfo) {
+        synchronized (mCache) {
+            String key = item.getComponentName();
+            CacheEntry entry = mCache.get(key);
+            if (entry == null) {
+                entry = new CacheEntry();
+
+                mCache.put(key, entry);
+                //entry.title = key;
+                entry.icon = activityInfo.loadIcon(pm);
+            }
+            item.setIcon(entry.icon);
+        }
+    }
+
     public void getIcon(AppItem item, ApplicationInfo info) {
         synchronized (mCache) {
-            String key = item.getPackageName();
+            String key = item.getComponentName();
             CacheEntry entry = mCache.get(key);
             if (entry == null) {
                 entry = new CacheEntry();
@@ -93,15 +109,20 @@ public class IconCache {
         }
     }
 
-    public void getIcon(AppItem item, String packageName) {
-        ApplicationInfo info = null;
-        try {
-            info = mContext.getPackageManager().getApplicationInfo(packageName, 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (info != null) {
-            getIcon(item, info);
+    public void getIcon(AppItem item, PackageManager packageManager) {
+        synchronized (mCache) {
+            String key = item.getComponentName();
+            CacheEntry entry = mCache.get(key);
+            if (entry == null) {
+                entry = new CacheEntry();
+                mCache.put(key, entry);
+                try {
+                    entry.icon = packageManager.getActivityIcon(ComponentName.unflattenFromString(key));
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            item.setIcon(entry.icon);
         }
     }
 

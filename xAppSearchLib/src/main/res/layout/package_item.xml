@@ -21,6 +21,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/margin_normal"
         android:singleLine="true"
-        android:textColor="#FFFFFF" />
+        android:textColor="#282828" />
 
 </RelativeLayout>

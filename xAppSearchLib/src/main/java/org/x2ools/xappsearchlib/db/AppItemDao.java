@@ -6,6 +6,8 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
+import org.x2ools.xappsearchlib.model.AppItem;
+
 import java.util.List;
 
 import io.reactivex.Maybe;
@@ -15,16 +17,16 @@ import io.reactivex.Maybe;
  * @date 2017/12/4
  */
 @Dao
-public interface InstalledAppDao {
-    @Query("SELECT * FROM InstalledApp")
-    Maybe<List<InstalledApp>> getAll();
+public interface AppItemDao {
+    @Query("SELECT * FROM AppItem")
+    Maybe<List<AppItem>> getAll();
 
-    @Query("SELECT * FROM InstalledApp where packageName = :packageName")
-    Maybe<InstalledApp> get(String packageName);
+    @Query("SELECT * FROM AppItem where componentName = :componentName")
+    Maybe<AppItem> get(String componentName);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void add(InstalledApp app);
+    void add(AppItem app);
 
     @Delete
-    void remove(InstalledApp app);
+    void remove(AppItem app);
 }
