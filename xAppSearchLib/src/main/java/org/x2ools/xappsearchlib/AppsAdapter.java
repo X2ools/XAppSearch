@@ -1,12 +1,15 @@
 package org.x2ools.xappsearchlib;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import org.x2ools.xappsearchlib.model.CalcItem;
+import org.x2ools.xappsearchlib.model.AppItem;
 import org.x2ools.xappsearchlib.model.SearchItem;
 
 import java.util.List;
@@ -54,6 +57,18 @@ public class AppsAdapter extends BaseAdapter {
 
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
+        }
+        if (item.getIcon() == null) {
+            if (item instanceof AppItem) {
+                ComponentName componentName = ComponentName.unflattenFromString(((AppItem) item).getComponentName());
+                Drawable icon = null;
+                try {
+                    icon = mContext.getPackageManager().getActivityIcon(componentName);
+                } catch (PackageManager.NameNotFoundException e) {
+                    icon = mContext.getPackageManager().getDefaultActivityIcon();
+                }
+                item.setIcon(icon);
+            }
         }
         if (item.getIcon() == null) {
             viewHolder.icon.setVisibility(View.GONE);

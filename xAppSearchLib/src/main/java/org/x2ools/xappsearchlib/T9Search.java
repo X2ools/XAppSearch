@@ -23,7 +23,6 @@ import org.x2ools.xappsearchlib.model.AppItem;
 import org.x2ools.xappsearchlib.model.CalcItem;
 import org.x2ools.xappsearchlib.model.ContactItem;
 import org.x2ools.xappsearchlib.model.SearchItem;
-import org.x2ools.xappsearchlib.tools.IconCache;
 import org.x2ools.xappsearchlib.tools.ToPinYinUtils;
 
 import java.util.ArrayList;
@@ -64,7 +63,6 @@ public class T9Search {
     private PackageManager mPackageManager;
     private ContentResolver mResolver;
     private HashMap<String, ContactItem> mAddedContact = new HashMap<>();
-    private IconCache mIconCache;
     private ArrayList<SearchItem> mSearchResult = new ArrayList<>();
     private BehaviorSubject<List<SearchItem>> mAllItemsSubject = BehaviorSubject.createDefault(Collections.<SearchItem>emptyList());
     private boolean mContactEnable = false;
@@ -79,18 +77,13 @@ public class T9Search {
     };
 
     private Publisher<List<SearchItem>> mGetAllCallable = (subscriber) -> {
-        List<SearchItem> all = new ArrayList<>();
 
         List<AppItem> installedApps = mDb.appItemDao().getAll().blockingGet();
-        if (installedApps != null) {
-            for (AppItem app : installedApps) {
-                mIconCache.getIcon(app, mPackageManager);
-                all.add(app);
-            }
-
-            Collections.sort(all);
-            subscriber.onNext(new ArrayList<>(all));
+        if (installedApps == null) {
+            installedApps = new ArrayList<>();
         }
+        Collections.sort(installedApps);
+        subscriber.onNext(new ArrayList<>(installedApps));
 
         List<SearchItem> newAll = new ArrayList<>();
         List<ApplicationInfo> applicationInfoList = mPackageManager.getInstalledApplications(0);
@@ -104,9 +97,9 @@ public class T9Search {
                 ComponentName componentName = new ComponentName(resolveInfo.activityInfo.packageName,
                         resolveInfo.activityInfo.name);
                 AppItem item = new AppItem(componentName.flattenToString());
-                int oldIndex = all.indexOf(item);
+                int oldIndex = installedApps.indexOf(item);
                 if (oldIndex != -1) {
-                    item = (AppItem) all.get(oldIndex);
+                    item = installedApps.get(oldIndex);
                 }
                 String name = resolveInfo.activityInfo.loadLabel(mPackageManager).toString();
                 String pinyin = ToPinYinUtils.getPinYin(name, false);
@@ -115,14 +108,13 @@ public class T9Search {
                 item.setName(name);
                 item.setPinyin(pinyin);
                 item.setFullpinyin(fullpinyin);
-                mIconCache.getIcon(item, resolveInfo.activityInfo);
                 mDb.appItemDao().add(item);
                 newAll.add(item);
             }
         }
 
         Collections.sort(newAll);
-        if (!newAll.equals(all)) {
+        if (!newAll.equals(installedApps)) {
             subscriber.onNext(new ArrayList<>(newAll));
         }
     };
@@ -179,7 +171,6 @@ public class T9Search {
         mResolver = context.getContentResolver();
         mDb = Room.databaseBuilder(mContext, AppDatabase.class, "app_db")
                 .build();
-        mIconCache = new IconCache(context);
         mContactEnable = contactEnable;
         mCallPhoneEnable = callEnable;
         reloadData();

@@ -32,8 +32,6 @@ public class T9AppsView extends FrameLayout implements T9ViewDelegate {
     private StringBuilder mFilterText = new StringBuilder();
     private AppsAdapter mAdapter;
 
-    private boolean qwerty;
-
     public T9AppsView(Context context) {
         this(context, null);
     }
@@ -52,13 +50,6 @@ public class T9AppsView extends FrameLayout implements T9ViewDelegate {
             initSubViews();
             mViewModel.filter("");
         }
-    }
-
-    public boolean isQwerty() {
-        return qwerty;
-    }
-
-    public void setQwerty(boolean qwerty, boolean anim) {
     }
 
     private void initSubViews() {
