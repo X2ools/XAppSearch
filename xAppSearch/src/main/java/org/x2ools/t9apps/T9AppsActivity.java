@@ -24,6 +24,7 @@ public class T9AppsActivity extends BaseActivity {
             T9Search.getInstance().setCallPhoneEnable(enabled);
         }
     };
+    private T9AppsView view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +35,10 @@ public class T9AppsActivity extends BaseActivity {
         Settings settings = new Settings(this);
         boolean enableContact = settings.isEnableContact();
         boolean enableCall = settings.isEnableCall();
-        boolean qwerty = settings.getKeyboardType() == KeyboardType.QWERTY;
 
         T9Search.getInstance().init(T9AppsActivity.this, enableContact, enableCall);
 
-        T9AppsView view = new T9AppsView(this);
+        view = new T9AppsView(this);
         setContentView(view);
 
         if (settings.isEnableContact()) {
@@ -47,6 +47,20 @@ public class T9AppsActivity extends BaseActivity {
         if (settings.isEnableCall()) {
             checkPermission(listener, Manifest.permission.CALL_PHONE);
         }
+
+        checkPermission(listener, Manifest.permission.RECORD_AUDIO);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        view.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        view.onPause();
     }
 
     @Override

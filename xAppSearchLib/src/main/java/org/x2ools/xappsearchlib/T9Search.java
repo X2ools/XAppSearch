@@ -12,14 +12,8 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.Log;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.GlideBuilder;
-import com.bumptech.glide.annotation.GlideExtension;
-import com.bumptech.glide.annotation.GlideModule;
 
 import org.javia.arity.Symbols;
 import org.javia.arity.SyntaxException;
@@ -53,6 +47,14 @@ public class T9Search {
     private Symbols symbols = new Symbols();
     private AppDatabase mDb;
 
+    private Context mContext;
+    private PackageManager mPackageManager;
+    private ContentResolver mResolver;
+    private HashMap<String, ContactItem> mAddedContact = new HashMap<>();
+    private ArrayList<SearchItem> mSearchResult = new ArrayList<>();
+    private BehaviorSubject<List<SearchItem>> mAllItemsSubject = BehaviorSubject.createDefault(Collections.<SearchItem>emptyList());
+    private boolean mContactEnable = false;
+    private boolean mCallPhoneEnable = false;
 
     private T9Search() {
     }
@@ -65,15 +67,6 @@ public class T9Search {
     public static T9Search getInstance() {
         return Holder.INSTANCE;
     }
-
-    private Context mContext;
-    private PackageManager mPackageManager;
-    private ContentResolver mResolver;
-    private HashMap<String, ContactItem> mAddedContact = new HashMap<>();
-    private ArrayList<SearchItem> mSearchResult = new ArrayList<>();
-    private BehaviorSubject<List<SearchItem>> mAllItemsSubject = BehaviorSubject.createDefault(Collections.<SearchItem>emptyList());
-    private boolean mContactEnable = false;
-    private boolean mCallPhoneEnable = false;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -193,8 +186,6 @@ public class T9Search {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     public void setContactEnable(boolean enable) {
