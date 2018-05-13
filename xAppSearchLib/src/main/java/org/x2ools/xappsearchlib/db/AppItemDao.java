@@ -18,11 +18,11 @@ import io.reactivex.Maybe;
  */
 @Dao
 public interface AppItemDao {
-    @Query("SELECT * FROM AppItem")
-    Maybe<List<AppItem>> getAll();
+    @Query("SELECT * FROM AppItem ORDER BY usage DESC, name")
+    List<AppItem> getAll();
 
     @Query("SELECT * FROM AppItem where componentName = :componentName")
-    Maybe<AppItem> get(String componentName);
+    AppItem get(String componentName);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void add(AppItem app);

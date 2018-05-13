@@ -1,7 +1,9 @@
 package org.x2ools.t9apps;
 
 import android.Manifest;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -14,7 +16,6 @@ import org.x2ools.xappsearchlib.T9Search;
 public class T9AppsActivity extends BaseActivity {
 
     private static final String TAG = "T9AppsActivity";
-    private Window mWindow;
 
     private PermissionListener listener = (permission, enabled) -> {
         if (Manifest.permission.READ_CONTACTS.equals(permission)) {
@@ -27,7 +28,9 @@ public class T9AppsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mWindow = getWindow();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
         Settings settings = new Settings(this);
         boolean enableContact = settings.isEnableContact();
         boolean enableCall = settings.isEnableCall();
@@ -44,11 +47,6 @@ public class T9AppsActivity extends BaseActivity {
         if (settings.isEnableCall()) {
             checkPermission(listener, Manifest.permission.CALL_PHONE);
         }
-    }
-
-    private void translateSystemUI() {
-        mWindow.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        mWindow.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
     }
 
     @Override

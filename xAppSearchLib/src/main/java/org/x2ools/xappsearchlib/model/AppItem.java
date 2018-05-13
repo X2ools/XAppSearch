@@ -2,7 +2,10 @@ package org.x2ools.xappsearchlib.model;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+
+import org.x2ools.xappsearchlib.tools.IconCache;
 
 /**
  * @author zhoubinjia
@@ -37,6 +40,14 @@ public class AppItem extends SearchItem {
 
     public void setComponentName(@NonNull String componentName) {
         this.componentName = componentName;
+    }
+
+    @Override
+    public Drawable getIcon() {
+        if (icon == null) {
+            icon = IconCache.get().get(componentName);
+        }
+        return icon;
     }
 
     @Override

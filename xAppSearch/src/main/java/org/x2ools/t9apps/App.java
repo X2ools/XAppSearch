@@ -3,6 +3,8 @@ package org.x2ools.t9apps;
 import android.app.Application;
 import android.util.Log;
 
+import org.x2ools.xappsearchlib.tools.AppContext;
+
 import io.reactivex.plugins.RxJavaPlugins;
 
 /**
@@ -15,6 +17,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
+        AppContext.attachApp(this);
         RxJavaPlugins.setErrorHandler(throwable -> Log.e("App", "RxJavaError", throwable));
     }
 }

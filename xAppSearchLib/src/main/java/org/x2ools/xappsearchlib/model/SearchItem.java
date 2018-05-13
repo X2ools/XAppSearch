@@ -12,7 +12,7 @@ public class SearchItem implements Comparable<SearchItem> {
     private String fullpinyin;
     private int usage;
     @Ignore
-    private Drawable icon;
+    protected Drawable icon;
 
     public int getId() {
         return id;

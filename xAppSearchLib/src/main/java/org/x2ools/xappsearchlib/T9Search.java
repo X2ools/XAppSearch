@@ -12,8 +12,14 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.annotation.GlideExtension;
+import com.bumptech.glide.annotation.GlideModule;
 
 import org.javia.arity.Symbols;
 import org.javia.arity.SyntaxException;
@@ -23,6 +29,7 @@ import org.x2ools.xappsearchlib.model.AppItem;
 import org.x2ools.xappsearchlib.model.CalcItem;
 import org.x2ools.xappsearchlib.model.ContactItem;
 import org.x2ools.xappsearchlib.model.SearchItem;
+import org.x2ools.xappsearchlib.tools.IconCache;
 import org.x2ools.xappsearchlib.tools.ToPinYinUtils;
 
 import java.util.ArrayList;
@@ -78,11 +85,10 @@ public class T9Search {
 
     private Publisher<List<SearchItem>> mGetAllCallable = (subscriber) -> {
 
-        List<AppItem> installedApps = mDb.appItemDao().getAll().blockingGet();
+        List<AppItem> installedApps = mDb.appItemDao().getAll();
         if (installedApps == null) {
             installedApps = new ArrayList<>();
         }
-        Collections.sort(installedApps);
         subscriber.onNext(new ArrayList<>(installedApps));
 
         List<SearchItem> newAll = new ArrayList<>();
@@ -108,6 +114,7 @@ public class T9Search {
                 item.setName(name);
                 item.setPinyin(pinyin);
                 item.setFullpinyin(fullpinyin);
+                item.setIcon(IconCache.get().get(componentName.flattenToString()));
                 mDb.appItemDao().add(item);
                 newAll.add(item);
             }
@@ -170,6 +177,7 @@ public class T9Search {
         mPackageManager = context.getPackageManager();
         mResolver = context.getContentResolver();
         mDb = Room.databaseBuilder(mContext, AppDatabase.class, "app_db")
+                .allowMainThreadQueries()
                 .build();
         mContactEnable = contactEnable;
         mCallPhoneEnable = callEnable;
@@ -185,6 +193,8 @@ public class T9Search {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
     }
 
     public void setContactEnable(boolean enable) {
@@ -222,12 +232,9 @@ public class T9Search {
     }
 
     public void recordUsage(String componentName) {
-        mDisposable.add(mDb.appItemDao().get(componentName)
-                .subscribeOn(Schedulers.io())
-                .subscribe(appUsage -> {
-                    appUsage.setUsage(appUsage.getUsage() + 1);
-                    mDb.appItemDao().add(appUsage);
-                }, throwable -> {}));
+        AppItem item = mDb.appItemDao().get(componentName);
+        item.setUsage(item.getUsage() + 1);
+        mDb.appItemDao().add(item);
     }
 
     public Observable<List<SearchItem>> search(final String text) {

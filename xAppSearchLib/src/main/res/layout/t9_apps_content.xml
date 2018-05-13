@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainViewContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF" >
+    android:background="#F2F2F2">
 
     <RelativeLayout
         android:id="@+id/mainView"
@@ -13,10 +13,18 @@
 
         <EditText
             android:id="@+id/numFilter"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:inputType="textEmailAddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:hint="搜索应用，数学计算"
+            android:textColorHint="#999999"
+            android:textColor="#282828"
+            android:background="#FFFFFF"
             android:textSize="16sp" />
 
         <GridView
@@ -24,6 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/numFilter"
+            tools:listitem="@layout/package_item"
             android:numColumns="4" >
         </GridView>
     </RelativeLayout>

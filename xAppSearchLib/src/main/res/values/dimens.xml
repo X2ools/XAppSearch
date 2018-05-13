@@ -34,6 +34,6 @@
     <!-- Quick Settings tile geometry: top interior margin, above icon -->
     <!-- Quick Settings tile geometry: gap between icon and text -->
     <!-- Quick Settings tile geometry: icon size -->
-    <dimen name="margin_normal">5dp</dimen>
+    <dimen name="margin_normal">8dp</dimen>
 
 </resources>
